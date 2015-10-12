@@ -7,6 +7,7 @@
 (def ^:dynamic *list-repos-fn* (atom orgs/repos))
 (def ^:dynamic *list-teams-fn* (atom orgs/teams))
 (def ^:dynamic *create-team-fn* (atom orgs/create-team))
+
 (def ^:dynamic *auth* (atom {:oauth-token (System/getenv "HUBUB_OAUTH_TOKEN")}))
 
 (defn team-exists?
@@ -165,14 +166,21 @@
       (log/info "Setting users for" repo-name "to" users)
       (set-team-users org (str repo-name "-contributors") users))))
 
+(defn check-env
+  []
+  (if (nil? (:oauth-token @*auth*))
+    (throw (Exception. "HUBUB_OAUTH_TOKEN not set"))))
+
 (defn run
   ([org input]
     (do
       (log/info "Not performing custom user verification")
+      (check-env)
       (create-teams org)
       (set-users org input (fn [x y] true))))
   ([org input valid-user-fn]
     (do
       (log/info "Processing with user provided verify function")
+      (check-env)
       (create-teams org)
       (set-users org input valid-user-fn))))
