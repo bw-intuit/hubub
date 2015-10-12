@@ -15,6 +15,11 @@
   (let [teams (map :name (@*list-teams-fn* org (assoc @*auth* :all-pages true)))]
     (false? (empty? (some #{team-name} teams)))))
 
+(defn lookup-team-id
+  [org team-name]
+  (let [teams (@*list-teams-fn* org (assoc @*auth* :all-pages true))]
+    (:id (first (filter #(= (:name %) team-name) teams)))))
+
 (defn list-repos [org] (map :name (@*list-repos-fn* org (assoc @*auth* :all-pages true))))
 
 (defn parse-repos-to-users
@@ -63,6 +68,25 @@
         (log/info "team" team-name "does not exist. creating.")
         (:name (@*create-team-fn* org team-name options))))))
 
+(defn create-team
+  [org repo-name]
+  (let [team-name (str repo-name "-contributors")
+        options (merge @*auth* {:repo-names [repo-name]
+                                :permission "push"})]
+    (if (team-exists? org team-name)
+      (do
+        (log/info "team" team-name "already exists.")
+        team-name)
+      (do
+        (log/info "team" team-name "does not exist. creating.")
+        (@*create-team-fn* org team-name options)
+
+        (log/info "adding" repo-name "to" team-name)
+        (let [team-id (lookup-team-id org team-name)]
+          (orgs/add-team-repo team-id org repo-name @*auth*))
+
+        team-name))))
+
 (defn create-teams
   [org]
   (let [repos (list-repos org)]
@@ -78,11 +102,6 @@
 (defn users-to-add
   [current-users users]
   (remove #(some #{%} current-users) users))
-
-(defn lookup-team-id
-  [org team-name]
-  (let [teams (@*list-teams-fn* org (assoc @*auth* :all-pages true))]
-    (:id (first (filter #(= (:name %) team-name) teams)))))
 
 (defn current-users-in-team
   [id]
