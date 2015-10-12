@@ -50,7 +50,7 @@ falsy value, the user is removed. For example
 We create the following function to check if a user is valid.
 
 ```
-(defn check [username user-data] (if (= username "user1") true false))
+(defn check [username user-data] (= username "user1"))
 ```
 
 And pass it as a third parameter to run
