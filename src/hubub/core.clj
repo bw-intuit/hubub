@@ -12,10 +12,10 @@
 
 (defn team-exists?
   [org team-name]
-  (let [teams (map :name (@*list-teams-fn* org @*auth*))]
+  (let [teams (map :name (@*list-teams-fn* org (assoc @*auth* :all-pages true)))]
     (false? (empty? (some #{team-name} teams)))))
 
-(defn list-repos [org] (map :name (@*list-repos-fn* org @*auth*)))
+(defn list-repos [org] (map :name (@*list-repos-fn* org (assoc @*auth* :all-pages true))))
 
 (defn parse-repos-to-users
   [input]
@@ -81,7 +81,7 @@
 
 (defn lookup-team-id
   [org team-name]
-  (let [teams (orgs/teams org @*auth*)]
+  (let [teams (*list-teams-fn* org (assoc @*auth* :all-pages true))]
     (:id (first (filter #(= (:name %) team-name) teams)))))
 
 (defn current-users-in-team
