@@ -47,7 +47,7 @@
                                      (valid-user? username user-data valid-user-fn)))
                                  repo-user-map)]
     (do
-      (log/info valid-repo-users)
+      (log/info "valid repo users for" repo-name ":" valid-repo-users)
       valid-repo-users)))
 
 (defn create-team
@@ -114,7 +114,8 @@
   "Fork of tentacles/add-team-member to check for state of added member"
   [id user options]
   (let [result (tentacles-core/api-call :put "teams/%s/memberships/%s" [id user] options)]
-    (log/info "Result adding user" user "to" id ":" result)
+    (log/debug "Result adding user" user "to" id ":" result)
+    (log/info "User state is" (:state result))
     (let [state (:state result)]
       (if (= (false? (nil? (some #{state} ["active" "pending"])))) true false))))
 
