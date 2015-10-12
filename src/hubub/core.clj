@@ -71,8 +71,7 @@
 (defn create-team
   [org repo-name]
   (let [team-name (str repo-name "-contributors")
-        options (merge @*auth* {:repo-names [repo-name]
-                                :permission "push"})]
+        options (merge @*auth* {:permission "push"})]
     (if (team-exists? org team-name)
       (do
         (log/info "team" team-name "already exists.")
@@ -80,12 +79,19 @@
       (do
         (log/info "team" team-name "does not exist. creating.")
         (@*create-team-fn* org team-name options)
-
-        (log/info "adding" repo-name "to" team-name)
-        (let [team-id (lookup-team-id org team-name)]
-          (orgs/add-team-repo team-id org repo-name @*auth*))
-
         team-name))))
+
+(defn associate-repo-with-team
+  [org repo-name]
+  (let [team-name (str repo-name "-contributors")
+        team-id (lookup-team-id org team-name)]
+    (if (orgs/team-repo? team-id org repo-name @*auth*)
+      (do
+        (log/info "team" team-name "already associated with repo" repo-name)
+        team-name)
+      (do
+        (log/info "team" team-name "not associated with repo" repo-name " associating...")
+        (orgs/add-team-repo team-id org repo-name @*auth*)))))
 
 (defn create-teams
   [org]
@@ -93,7 +99,8 @@
     (log/info org "has repos" repos)
     (doseq [repo-name repos]
       (log/info "processing" repo-name)
-      (create-team org repo-name))))
+      (create-team org repo-name)
+      (associate-repo-with-team org repo-name))))
 
 (defn users-to-remove
   [current-users users]
