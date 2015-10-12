@@ -90,7 +90,7 @@
         (log/info "team" team-name "already associated with repo" repo-name)
         team-name)
       (do
-        (log/info "team" team-name "not associated with repo" repo-name " associating...")
+        (log/info "team" team-name "not associated with repo" repo-name ". Associating...")
         (orgs/add-team-repo team-id org repo-name @*auth*)))))
 
 (defn create-teams
