@@ -81,7 +81,7 @@
 
 (defn lookup-team-id
   [org team-name]
-  (let [teams (*list-teams-fn* org (assoc @*auth* :all-pages true))]
+  (let [teams (@*list-teams-fn* org (assoc @*auth* :all-pages true))]
     (:id (first (filter #(= (:name %) team-name) teams)))))
 
 (defn current-users-in-team
