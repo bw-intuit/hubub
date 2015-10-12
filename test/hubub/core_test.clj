@@ -40,5 +40,5 @@
 (deftest parse-repos-to-user-test
   (testing "test parse-repos-to-user"
     (is (= (parse-repos-to-users input)
-           {"repo1" ["github-user2" "github-user1" "github-user3"]
+           {"repo1" ["github-user1" "github-user2" "github-user3"]
             "repo2" ["github-user2" "github-user3"]}))))

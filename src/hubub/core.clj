@@ -40,12 +40,14 @@
 (defn repo-users
   [repo-name input valid-user-fn]
   (let [repos-user-map (parse-repos-to-users input)
-        repo-user-map (get repos-user-map repo-name)]
-    (filter (fn [username]
-              (let [user-data (get input username)]
-                (prn user-data)
-                (valid-user? username user-data valid-user-fn)))
-            repo-user-map)))
+        repo-user-map (get repos-user-map repo-name)
+        valid-repo-users (filter (fn [username]
+                                   (let [user-data (get input username)]
+                                     (valid-user? username user-data valid-user-fn)))
+                                 repo-user-map)]
+    (do
+      (log/info valid-repo-users)
+      valid-repo-users)))
 
 (defn create-team
   [org repo-name]
