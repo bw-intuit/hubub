@@ -2,16 +2,16 @@
 
 (defn valid-user-stub-fn
   [username user-data]
-  (some #{(:internal-user user-data)}
+  (some #{(get user-data "internal-user")}
         ["internal-user1" "internal-user3"]))
 
 (def input
-  {"github-user1" {:repos ["repo1"]
-                   :internal-user "internal-user1"}
-   "github-user2" {:repos ["repo1" "repo2"]
-                   :internal-user "internal-user2"}
-   "github-user3" {:repos ["repo1" "repo2"]
-                   :internal-user "internal-user3"}})
+  {"github-user1" {"repos" ["repo1"]
+                   "internal-user" "internal-user1"}
+   "github-user2" {"repos" ["repo1" "repo2"]
+                   "internal-user" "internal-user2"}
+   "github-user3" {"repos" ["repo1" "repo2"]
+                   "internal-user" "internal-user3"}})
 
 (defn list-teams-stub-fn
   [org auth]

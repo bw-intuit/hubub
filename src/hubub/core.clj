@@ -23,7 +23,7 @@
         result
         (let [user (first users)
               username (first user)
-              repos (-> user last :repos)]
+              repos (get (last user) "repos")]
           (recur (rest users) (loop [r repos result2 result]
                                 (if (empty? r)
                                   result2
