@@ -188,8 +188,8 @@
         users-to-add (remove #(user-member-of-team-pending? team-id %)
                              (users-to-add current-users users))]
     (log/info "Current list of users in" (log-var team-name) (log-var current-users))
-    (log/info "Users to remove" (log-var users-to-remove))
-    (log/info "Users to add" (log-var users-to-add))
+    (log/info "Users to remove" (log-var users-to-remove) "from" (log-var team-name))
+    (log/info "Users to add" (log-var users-to-add) "from" (log-var team-name))
     (remove-users-from-repo users-to-remove team-name team-id)
     (add-users-to-repo users-to-add team-name team-id)))
 
