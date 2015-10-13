@@ -103,7 +103,7 @@
 (defn create-teams
   [org]
   (let [repos (list-repos org)]
-    (log/info "Organization" (log-var org) "has repos" (log-var org))
+    (log/info "Organization" (log-var org) "has repos" (log-var repos))
     (doseq [repo-name repos]
       (log/info "Processing repo" (log-var repo-name))
       (create-team org repo-name)
