@@ -65,19 +65,6 @@
 (defn create-team
   [org repo-name]
   (let [team-name (str repo-name "-contributors")
-        options (merge @*auth* {:repo-names [repo-name]
-                                :permission "push"})]
-    (if (team-exists? org team-name)
-      (do
-        (log/info "Team" (log-var team-name) "already exists.")
-        team-name)
-      (do
-        (log/info "Team" (log-var team-name) "does not exist. creating.")
-        (:name (@*create-team-fn* org team-name options))))))
-
-(defn create-team
-  [org repo-name]
-  (let [team-name (str repo-name "-contributors")
         options (merge @*auth* {:permission "push"})]
     (if (team-exists? org team-name)
       (do
