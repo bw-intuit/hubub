@@ -1,7 +1,6 @@
 (ns hubub.core
   (:require [tentacles.core :as tentacles-core]
             [tentacles.orgs :as orgs]
-            [tentacles.users :as users]
             [clojure.tools.logging :as log]))
 
 (def ^:dynamic *list-repos-fn* (atom orgs/repos))
@@ -105,9 +104,7 @@
   [current-users users]
   (remove #(some #{%} current-users) users))
 
-(defn current-users-in-team
-  [id]
-  (map :login (orgs/team-members id @*auth*)))
+(defn current-users-in-team [id] (map :login (orgs/team-members id @*auth*)))
 
 (defn user-member-state
   [team-id username]
@@ -188,7 +185,7 @@
       (log/info "Setting users for" (log-var repo-name) "to" (log-var users))
       (set-team-users org (str repo-name "-contributors") users))))
 
-(defn check-env
+(defn- check-env
   []
   (if (nil? (:oauth-token @*auth*))
     (throw (Exception. "HUBUB_OAUTH_TOKEN not set"))))
