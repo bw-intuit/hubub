@@ -35,7 +35,7 @@
   (do 
     (stub-all)
     (testing "create team"
-      (is (= (create-team "org" "team1") "team1-contributors")))))
+      (is (= (:name (create-team "org" "team1")) "team1-contributors")))))
 
 (deftest parse-repos-to-user-test
   (testing "test parse-repos-to-user"

@@ -67,22 +67,17 @@
   (let [team-name (str repo-name "-contributors")
         options (merge @*auth* {:permission "push"})]
     (if (team-exists? org team-name)
-      (do
-        (log/info "Team" team-name "already exists.")
-        team-name)
+      (log/info "Team" team-name "already exists.")
       (do
         (log/info "Team" team-name "does not exist. creating.")
-        (@*create-team-fn* org team-name options)
-        team-name))))
+        (@*create-team-fn* org team-name options)))))
 
 (defn associate-repo-with-team
   [org repo-name]
   (let [team-name (str repo-name "-contributors")
         team-id (lookup-team-id org team-name)]
     (if (orgs/team-repo? team-id org repo-name @*auth*)
-      (do
-        (log/info "Team" (log-var team-name) "already associated with repo" (log-var repo-name))
-        team-name)
+      (log/info "Team" (log-var team-name) "already associated with repo" (log-var repo-name))
       (do
         (log/info "team" (log-var team-name) "not associated with repo" (log-var repo-name) ". Associating...")
         (orgs/add-team-repo team-id org repo-name @*auth*)))))
