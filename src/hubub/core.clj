@@ -52,7 +52,7 @@
                                      (valid-user? username user-data valid-user-fn)))
                                  repo-user-map)]
     (do
-      (log/info "valid repo users for" repo-name ":" valid-repo-users)
+      (log/info "Valid repo users for" repo-name ":" valid-repo-users)
       valid-repo-users)))
 
 (defn create-team
@@ -62,10 +62,10 @@
                                 :permission "push"})]
     (if (team-exists? org team-name)
       (do
-        (log/info "team" team-name "already exists.")
+        (log/info "Team" team-name "already exists.")
         team-name)
       (do
-        (log/info "team" team-name "does not exist. creating.")
+        (log/info "Team" team-name "does not exist. creating.")
         (:name (@*create-team-fn* org team-name options))))))
 
 (defn create-team
@@ -74,10 +74,10 @@
         options (merge @*auth* {:permission "push"})]
     (if (team-exists? org team-name)
       (do
-        (log/info "team" team-name "already exists.")
+        (log/info "Team" team-name "already exists.")
         team-name)
       (do
-        (log/info "team" team-name "does not exist. creating.")
+        (log/info "Team" team-name "does not exist. creating.")
         (@*create-team-fn* org team-name options)
         team-name))))
 
@@ -87,7 +87,7 @@
         team-id (lookup-team-id org team-name)]
     (if (orgs/team-repo? team-id org repo-name @*auth*)
       (do
-        (log/info "team" team-name "already associated with repo" repo-name)
+        (log/info "Team" team-name "already associated with repo" repo-name)
         team-name)
       (do
         (log/info "team" team-name "not associated with repo" repo-name ". Associating...")
@@ -96,9 +96,9 @@
 (defn create-teams
   [org]
   (let [repos (list-repos org)]
-    (log/info org "has repos" repos)
+    (log/info "Organization" org "has repos" repos)
     (doseq [repo-name repos]
-      (log/info "processing" repo-name)
+      (log/info "Processing repo" repo-name)
       (create-team org repo-name)
       (associate-repo-with-team org repo-name))))
 
