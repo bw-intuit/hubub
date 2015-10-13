@@ -7,7 +7,14 @@ Hubub is a Clojure library designed to manage your GitHub organizations users.
 hubub creates teams and associates users and repos with those teams based on a
 hashmap that of users to repos.
 
-To get started, clone down this repo and open a REPL
+Set the **HUBUB_GITHUB_TOKEN** environment variable with a token that has **admin:org** permissions
+for a user who is a member of the org being managed.
+
+```
+export HUBUB_GITHUB_TOKEN=abcd1234
+```
+
+Clone down this repo and open a REPL
 
 ```
 lein repl
