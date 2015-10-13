@@ -10,6 +10,13 @@
 
 (def ^:dynamic *auth* (atom {:oauth-token (System/getenv "HUBUB_OAUTH_TOKEN")}))
 
+(defn log-list [x] (str "'" (clojure.string/join ", " x) "'"))
+(defmulti log-var class)
+(defmethod log-var clojure.lang.PersistentVector [x] (log-list x))
+(defmethod log-var clojure.lang.PersistentList [x] (log-list x))
+(defmethod log-var clojure.lang.LazySeq [x] (log-list x))
+(defmethod log-var String [x] (str "'" x "'"))
+
 (defn team-exists?
   [org team-name]
   (let [teams (map :name (@*list-teams-fn* org (assoc @*auth* :all-pages true)))]
@@ -52,7 +59,7 @@
                                      (valid-user? username user-data valid-user-fn)))
                                  repo-user-map)]
     (do
-      (log/info "Valid repo users for" repo-name ":" valid-repo-users)
+      (log/info "Valid repo users for" (log-var repo-name) "are" (log-var valid-repo-users))
       valid-repo-users)))
 
 (defn create-team
@@ -62,10 +69,10 @@
                                 :permission "push"})]
     (if (team-exists? org team-name)
       (do
-        (log/info "Team" team-name "already exists.")
+        (log/info "Team" (log-var team-name) "already exists.")
         team-name)
       (do
-        (log/info "Team" team-name "does not exist. creating.")
+        (log/info "Team" (log-var team-name) "does not exist. creating.")
         (:name (@*create-team-fn* org team-name options))))))
 
 (defn create-team
@@ -87,18 +94,18 @@
         team-id (lookup-team-id org team-name)]
     (if (orgs/team-repo? team-id org repo-name @*auth*)
       (do
-        (log/info "Team" team-name "already associated with repo" repo-name)
+        (log/info "Team" (log-var team-name) "already associated with repo" (log-var repo-name))
         team-name)
       (do
-        (log/info "team" team-name "not associated with repo" repo-name ". Associating...")
+        (log/info "team" (log-var team-name) "not associated with repo" (log-var repo-name) ". Associating...")
         (orgs/add-team-repo team-id org repo-name @*auth*)))))
 
 (defn create-teams
   [org]
   (let [repos (list-repos org)]
-    (log/info "Organization" org "has repos" repos)
+    (log/info "Organization" (log-var org) "has repos" (log-var org))
     (doseq [repo-name repos]
-      (log/info "Processing repo" repo-name)
+      (log/info "Processing repo" (log-var repo-name))
       (create-team org repo-name)
       (associate-repo-with-team org repo-name))))
 
@@ -140,8 +147,8 @@
   "Fork of tentacles/add-team-member to check for state of added member"
   [id user options]
   (let [result (tentacles-core/api-call :put "teams/%s/memberships/%s" [id user] options)]
-    (log/debug "Result adding user" user "to" id ":" result)
-    (log/info "User state is" (:state result))
+    (log/debug "Result adding user" (log-var user) "to" (log-var id) ":" result)
+    (log/info "User state is" (log-var (:state result)))
     (let [state (:state result)]
       (if (= (false? (nil? (some #{state} ["active" "pending"])))) true false))))
 
@@ -160,18 +167,18 @@
 (defn remove-users-from-repo
   [users team-name team-id]
   (doseq [user users]
-    (log/info "Removing user" user "from" team-name)
+    (log/info "Removing user" (log-var user) "from" (log-var team-name))
     (if (true? (remove-user-from-team team-id user))
       true
-      (throw (Exception. (str "Error removing " user " from " team-id))))))
+      (throw (Exception. (str "Error removing " (log-var user) " from " (log-var team-id)))))))
 
 (defn add-users-to-repo
   [users team-name team-id]
   (doseq [user users]
-    (log/info "Adding user" user "to" team-name)
+    (log/info "Adding user" (log-var user) "to" (log-var team-name))
     (if (true? (add-user-to-team team-id user))
       true
-      (throw (Exception. (str "Error adding " user " from " team-id))))))
+      (throw (Exception. (str "Error adding " (log-var user) " from " (log-var team-id)))))))
 
 (defn set-team-users
   [org team-name users]
@@ -180,9 +187,9 @@
         users-to-remove (users-to-remove current-users users)
         users-to-add (remove #(user-member-of-team-pending? team-id %)
                              (users-to-add current-users users))]
-    (log/info "Current list of users in" team-name current-users)
-    (log/info "Users to remove:" users-to-remove)
-    (log/info "Users to add" users-to-add)
+    (log/info "Current list of users in" (log-var team-name) (log-var current-users))
+    (log/info "Users to remove" (log-var users-to-remove))
+    (log/info "Users to add" (log-var users-to-add))
     (remove-users-from-repo users-to-remove team-name team-id)
     (add-users-to-repo users-to-add team-name team-id)))
 
@@ -190,7 +197,7 @@
   [org input valid-user-fn]
   (doseq [repo-name (list-repos org)]
     (let [users (repo-users repo-name input valid-user-fn)]
-      (log/info "Setting users for" repo-name "to" users)
+      (log/info "Setting users for" (log-var repo-name) "to" (log-var users))
       (set-team-users org (str repo-name "-contributors") users))))
 
 (defn check-env
