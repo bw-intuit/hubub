@@ -63,9 +63,9 @@
   (let [team-name (str repo-name "-contributors")
         options (assoc @*auth* :permission "push")]
     (if (team-exists? org team-name)
-      (log/info "Team" team-name "already exists.")
+      (log/info "Team" (log-var team-name) "already exists.")
       (do
-        (log/info "Team" team-name "does not exist. creating.")
+        (log/info "Team" (log-var team-name) "does not exist. creating.")
         (@*create-team-fn* org team-name options)))))
 
 (defn associate-repo-with-team
