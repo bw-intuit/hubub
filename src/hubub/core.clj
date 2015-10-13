@@ -22,7 +22,7 @@
       (let [msg (str "Error removing " (p/log-var user) " from " (p/log-var team-id))]
         (throw (Exception. msg))))))
 
-(defn add-users-to-repo
+(defn- add-users-to-repo
   [users team-name team-id]
   (doseq [user users]
     (log/info "Adding user" (p/log-var user) "to" (p/log-var team-name))
