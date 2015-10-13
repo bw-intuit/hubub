@@ -122,17 +122,6 @@
     true
     false))
 
-(defn add-team-member-fork
-  "Fork of tentacles/add-team-member to check for state of added member"
-  [id user options]
-  (let [result (tentacles-core/api-call :put "teams/%s/memberships/%s" [id user] options)]
-    (log/debug "Result adding user" (log-var user) "to" (log-var id) ":" result)
-    (log/info "User state is" (log-var (:state result)))
-    (let [state (:state result)]
-      (if (= (false? (nil? (some #{state} ["active" "pending"])))) true false))))
-
-;(def ironman-vnd "application/vnd.github.ironman-preview+json")
-
 (defn add-user-to-team
   [id user]
   (if (user-member-of-team? id user)
