@@ -58,9 +58,11 @@
       (log/info "Valid repo users for" (log-var repo-name) "are" (log-var valid-repo-users))
       valid-repo-users)))
 
+(defn repo-team-name [r] (str r "-contributors"))
+
 (defn create-team
   [org repo-name]
-  (let [team-name (str repo-name "-contributors")
+  (let [team-name (repo-team-name repo-name)
         options (assoc @*auth* :permission "push")]
     (if (team-exists? org team-name)
       (log/info "Team" (log-var team-name) "already exists.")
@@ -70,7 +72,7 @@
 
 (defn associate-repo-with-team
   [org repo-name]
-  (let [team-name (str repo-name "-contributors")
+  (let [team-name (repo-team-name repo-name)
         team-id (lookup-team-id org team-name)]
     (if (orgs/team-repo? team-id org repo-name @*auth*)
       (log/info "Team" (log-var team-name) "already associated with repo" (log-var repo-name))
