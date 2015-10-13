@@ -1,10 +1,10 @@
 (ns hubub.core
   (:require [clojure.tools.logging :as log]
+            [clojure.tools.logging :as log]
             [hubub.github :as github]
-            [hubub.parsers :as p]
-            [clojure.tools.logging :as log]))
+            [hubub.parsers :as p]))
 
-(defn create-teams
+(defn- create-teams
   [org]
   (let [repos (github/list-repos org)]
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
@@ -14,7 +14,7 @@
       (github/associate-repo-with-team org repo-name)
       (log/info "Completed processing repo" (p/log-var repo-name)))))
 
-(defn remove-users-from-repo
+(defn- remove-users-from-repo
   [users team-name team-id]
   (doseq [user users]
     (log/info "Removing user" (p/log-var user) "from" (p/log-var team-name))
@@ -30,7 +30,7 @@
       (let [msg (str "Error adding " (p/log-var user) " from " (p/log-var team-id))]
         (throw (Exception. msg))))))
 
-(defn set-team-users
+(defn- set-team-users
   [org team-name users]
   (let [team-id (github/lookup-team-id org team-name)
         current-users (github/current-users-in-team team-id)
@@ -44,7 +44,7 @@
       (remove-users-from-repo users-to-remove team-name team-id)
       (add-users-to-repo users-to-add team-name team-id))))
 
-(defn set-users
+(defn- set-users
   [org input valid-user-fn]
   (doseq [repo-name (github/list-repos org)]
     (let [users (p/repo-users repo-name input valid-user-fn)]

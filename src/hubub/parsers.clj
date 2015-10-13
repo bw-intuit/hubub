@@ -9,6 +9,8 @@
 (defmethod log-var Number [x] (str "'" x "'"))
 (defmethod log-var String [x] (str "'" x "'"))
 
+(defn- valid-user? [username user-data valid-user-fn] (valid-user-fn username user-data))
+
 (defn parse-repos-to-users
   [input]
   (loop [users input result {}]
@@ -23,8 +25,6 @@
                                   (let [repo (first r)]
                                     (recur (rest r)
                                            (assoc result2 repo (vec (concat (get result2 repo) [username]))))))))))))
-
-(defn- valid-user? [username user-data valid-user-fn] (valid-user-fn username user-data))
 
 (defn repo-users
   [repo-name input valid-user-fn]

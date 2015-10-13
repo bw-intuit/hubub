@@ -18,16 +18,6 @@
 
 (defn- repo-team-name [r] (str r "-contributors"))
 
-(defn create-team
-  [org repo-name]
-  (let [team-name (repo-team-name repo-name)
-        options (assoc @*auth* :permission "push")]
-    (if (team-exists? org team-name)
-      (log/info "Team" (p/log-var team-name) "already exists.")
-      (do
-        (log/info "Team" (p/log-var team-name) "does not exist. creating.")
-        (@*create-team-fn* org team-name options)))))
-
 (defn lookup-team-id
   [org team-name]
   (let [teams (@*list-teams-fn* org (assoc @*auth* :all-pages true))]
@@ -64,6 +54,16 @@
           (user-member-of-team-pending? team-id username))
     true
     false))
+
+(defn create-team
+  [org repo-name]
+  (let [team-name (repo-team-name repo-name)
+        options (assoc @*auth* :permission "push")]
+    (if (team-exists? org team-name)
+      (log/info "Team" (p/log-var team-name) "already exists.")
+      (do
+        (log/info "Team" (p/log-var team-name) "does not exist. creating.")
+        (@*create-team-fn* org team-name options)))))
 
 (defn add-user-to-team
   [id user]
