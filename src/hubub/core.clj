@@ -44,11 +44,7 @@
                                     (recur (rest r)
                                            (assoc result2 repo (vec (concat (get result2 repo) [username]))))))))))))
 
-(defn- valid-user?
-  [username user-data valid-user-fn]
-  (if (nil? username)
-    false
-    (valid-user-fn username user-data)))
+(defn- valid-user? [username user-data valid-user-fn] (valid-user-fn username user-data))
 
 (defn repo-users
   [repo-name input valid-user-fn]
@@ -87,9 +83,10 @@
   (let [repos (list-repos org)]
     (log/info "Organization" (log-var org) "has repos" (log-var repos))
     (doseq [repo-name repos]
-      (log/info "Processing repo" (log-var repo-name))
+      (log/info "Starting to process repo" (log-var repo-name))
       (create-team org repo-name)
-      (associate-repo-with-team org repo-name))))
+      (associate-repo-with-team org repo-name)
+      (log/info "Completed processing repo" (log-var repo-name)))))
 
 (defn users-to-remove
   [current-users users]
@@ -132,13 +129,13 @@
     (let [state (:state result)]
       (if (= (false? (nil? (some #{state} ["active" "pending"])))) true false))))
 
-(def ironman-vnd "application/vnd.github.ironman-preview+json")
+;(def ironman-vnd "application/vnd.github.ironman-preview+json")
 
 (defn add-user-to-team
   [id user]
   (if (user-member-of-team? id user)
     true
-    (add-team-member-fork id user (assoc @*auth* :accept ironman-vnd))))
+    (orgs/add-team-member id user @*auth*)))
 
 (defn remove-user-from-team
   [id user]
@@ -148,17 +145,17 @@
   [users team-name team-id]
   (doseq [user users]
     (log/info "Removing user" (log-var user) "from" (log-var team-name))
-    (if (true? (remove-user-from-team team-id user))
-      true
-      (throw (Exception. (str "Error removing " (log-var user) " from " (log-var team-id)))))))
+    (if (false? (remove-user-from-team team-id user))
+      (let [msg (str "Error removing " (log-var user) " from " (log-var team-id))]
+        (throw (Exception. msg))))))
 
 (defn add-users-to-repo
   [users team-name team-id]
   (doseq [user users]
     (log/info "Adding user" (log-var user) "to" (log-var team-name))
-    (if (true? (add-user-to-team team-id user))
-      true
-      (throw (Exception. (str "Error adding " (log-var user) " from " (log-var team-id)))))))
+    (if (false? (add-user-to-team team-id user))
+      (let [msg (str "Error adding " (log-var user) " from " (log-var team-id))]
+        (throw (Exception. msg))))))
 
 (defn set-team-users
   [org team-name users]
@@ -185,16 +182,19 @@
   (if (nil? (:oauth-token @*auth*))
     (throw (Exception. "HUBUB_OAUTH_TOKEN not set"))))
 
+(defn- process
+  [org input valid-user-fn]
+    (do
+      (check-env)
+      (create-teams org)
+      (set-users org input valid-user-fn)))
+
 (defn run
   ([org input]
     (do
       (log/info "Not performing custom user verification")
-      (check-env)
-      (create-teams org)
-      (set-users org input (fn [x y] true))))
+      (process org input (fn [x y] true))))
   ([org input valid-user-fn]
     (do
       (log/info "Processing with user provided verify function")
-      (check-env)
-      (create-teams org)
-      (set-users org input valid-user-fn))))
+      (process org input valid-user-fn))))
