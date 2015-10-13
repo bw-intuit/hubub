@@ -15,6 +15,7 @@
 (defmethod log-var clojure.lang.PersistentVector [x] (log-list x))
 (defmethod log-var clojure.lang.PersistentList [x] (log-list x))
 (defmethod log-var clojure.lang.LazySeq [x] (log-list x))
+(defmethod log-var Number [x] (str "'" x "'"))
 (defmethod log-var String [x] (str "'" x "'"))
 
 (defn team-exists?
