@@ -2,17 +2,26 @@
 
 Hubub is a Clojure library designed to manage your GitHub organizations users.
 
+## Overview
+
+As our GitHub organization grew, we experienced difficulties in ensuring that only
+current employees had access to repos for which they had been assigned contributor
+rights.
+
+Hubub is a library we created to manage our GitHub users and validate they are employees
+with rights to specific repos.
+
+Hubub performs the following:
+
+* Assigns GitHub usernames to specific repos in a GitHub organization.
+* Maps GitHub usernames to your companies data.
+* Perform validation against that data (i.g. ensure user is still active at company).
+* Removes or adds users to repos based on the results of the above validations.
+
 ## Usage
 
-hubub creates teams and associates users and repos with those teams based on a
+Hubub creates teams and associates users and repos with those teams based on a
 hashmap that of users to repos.
-
-Set the **HUBUB_GITHUB_TOKEN** environment variable with a token that has **admin:org** permissions
-for a user who is a member of the org being managed.
-
-```
-export HUBUB_GITHUB_TOKEN=abcd1234
-```
 
 Clone down this repo and open a REPL
 
@@ -26,7 +35,14 @@ Use this library
 (use 'hubub.core)
 ```
 
-Defin your user to repos mapping
+Set the GitHub [token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/) that has **admin:org** permissions for a user who is a
+member of the org being managed.
+
+```
+(def token "abcd1234")
+```
+
+Define your user to repos mapping
 
 ```
 (def input
@@ -37,7 +53,7 @@ Defin your user to repos mapping
 Execute run against given GitHub organization with this repo-mapping
 
 ```
-(run "this-is-a-test-1234" input)
+(run "this-is-a-test-1234" input token)
 ```
 
 Will add perform the following
@@ -63,7 +79,7 @@ We create the following function to check if a user is valid.
 And pass it as a third parameter to run
 
 ```
-(run "this-is-a-test-1234" input check)
+(run "this-is-a-test-1234" input token check)
 ```
 
 Will limit the users add to only those which check validates as true "user1". You can

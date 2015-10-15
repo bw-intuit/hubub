@@ -52,20 +52,18 @@
       (set-team-users org (str repo-name "-contributors") users))))
 
 (defn- process
-  [org input valid-user-fn]
+  [org input token valid-user-fn]
     (do
-      (if (nil? (System/getenv "HUBUB_GITHUB_TOKEN"))
-        (throw (Exception. "HUBUB_GITHUB_TOKEN environment variable not set")))
-      (github/set-github-token (System/getenv "HUBUB_GITHUB_TOKEN"))
+      (github/set-github-token token)
       (create-teams org)
       (set-users org input valid-user-fn)))
 
 (defn run
-  ([org input]
+  ([org input token]
     (do
       (log/info "Not performing custom user verification")
-      (process org input (fn [x y] true))))
-  ([org input valid-user-fn]
+      (process org input token (fn [x y] true))))
+  ([org input token valid-user-fn]
     (do
       (log/info "Processing with user provided verify function")
-      (process org input valid-user-fn))))
+      (process org input token valid-user-fn))))
