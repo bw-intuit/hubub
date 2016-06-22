@@ -4,6 +4,14 @@
             [hubub.github :as github]
             [hubub.parsers :as p]))
 
+(def ^:dynamic *errors* (atom '()))
+
+(defn- process-error
+  [message]
+  (do
+    (log/error message)
+    (swap! *errors* conj message)))
+
 (defn- create-teams
   [org]
   (let [repos (github/list-repos org)]
@@ -20,7 +28,7 @@
     (log/info "Removing user" (p/log-var user) "from" (p/log-var team-name))
     (if (false? (github/remove-user-from-team team-id user))
       (let [msg (str "Error removing " (p/log-var user) " from " (p/log-var team-id))]
-        (throw (Exception. msg))))))
+        (process-error msg)))))
 
 (defn- add-users-to-repo
   [users team-name team-id]
@@ -32,7 +40,7 @@
           (log/info "Adding user" (p/log-var user) "to" (p/log-var team-name))
           (if (github/add-user-to-team team-id user)
             (log/info "Successfully added " (p/log-var user) "to" (p/log-var team-name))
-            (log/info "Unable to add" (p/log-var user) "to" (p/log-var team-name)))
+            (process-error (str "Unable to add " (p/log-var user) " to " (p/log-var team-name))))
           (recur (rest u)))))))
 
 (defn- set-team-users
@@ -61,7 +69,13 @@
     (do
       (github/set-github-token token)
       (create-teams org)
-      (set-users org input valid-user-fn)))
+      (set-users org input valid-user-fn)
+      (if (empty? @*errors*)
+        nil
+        (do
+          (log/error "Received" (count @*errors*) "errors")
+          (doseq [error @*errors*]
+            (log/error "Received error: " error))))))
 
 (defn run
   ([org input token]
