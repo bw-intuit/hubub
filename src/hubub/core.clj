@@ -24,11 +24,16 @@
 
 (defn- add-users-to-repo
   [users team-name team-id]
-  (doseq [user users]
-    (log/info "Adding user" (p/log-var user) "to" (p/log-var team-name))
-    (if (false? (github/add-user-to-team team-id user))
-      (let [msg (str "Error adding " (p/log-var user) " from " (p/log-var team-id))]
-        (throw (Exception. msg))))))
+  (loop [u users]
+    (if (empty? u)
+      nil
+      (do
+        (let [user (first u)]
+          (log/info "Adding user" (p/log-var user) "to" (p/log-var team-name))
+          (if (github/add-user-to-team team-id user)
+            (log/info "Successfully added " (p/log-var user) "to" (p/log-var team-name))
+            (log/info "Unable to add" (p/log-var user) "to" (p/log-var team-name)))
+          (recur (rest u)))))))
 
 (defn- set-team-users
   [org team-name users]
