@@ -40,7 +40,9 @@
           (log/info "Adding user" (p/log-var user) "to" (p/log-var team-name))
           (if (github/add-user-to-team team-id user)
             (log/info "Successfully added " (p/log-var user) "to" (p/log-var team-name))
-            (process-error (str "Unable to add " (p/log-var user) " to " (p/log-var team-name))))
+            (process-error (str "Unable to add " (p/log-var user)
+                                " to " (p/log-var team-name)
+                                " make sure he has accepted membership to the org")))
           (recur (rest u)))))))
 
 (defn- set-team-users
