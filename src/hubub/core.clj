@@ -42,7 +42,7 @@
             (log/info "Successfully added " (p/log-var user) "to" (p/log-var team-name))
             (process-error (str "Unable to add " (p/log-var user)
                                 " to " (p/log-var team-name)
-                                " make sure he has accepted membership to the org")))
+                                " make sure they have accepted membership to the org")))
           (recur (rest u)))))))
 
 (defn- set-team-users
