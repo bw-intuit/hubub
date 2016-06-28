@@ -66,8 +66,8 @@
       (add-users-to-repo users-to-add team-name team-id))))
 
 (defn- set-users
-  [org input repo-name team-name valid-user-fn]
-  (let [users (p/repo-users team-name input valid-user-fn)]
+  [org input repo-name team-name valid-user-fn access]
+  (let [users (p/repo-users team-name input valid-user-fn access)]
     (log/info "Setting users for" (p/log-var repo-name) "to" (p/log-var users))
     (set-team-users org team-name users)))
 
@@ -76,7 +76,7 @@
   (doseq [repo-name (github/list-repos org)]
     (doseq [access valid-access]
       (let [team-name (str repo-name "-" access)]
-        (set-users org input repo-name team-name valid-user-fn)))))
+        (set-users org input repo-name team-name valid-user-fn access)))))
 
 (defn- process
   [org input token valid-user-fn]
