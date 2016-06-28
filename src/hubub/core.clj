@@ -67,7 +67,7 @@
 
 (defn- set-users
   [org input repo-name team-name valid-user-fn access]
-  (let [users (p/repo-users team-name input valid-user-fn access)]
+  (let [users (p/repo-users repo-name input valid-user-fn access)]
     (log/info "Setting users for" (p/log-var repo-name) "to" (p/log-var users))
     (set-team-users org team-name users)))
 
