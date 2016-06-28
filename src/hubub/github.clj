@@ -47,10 +47,8 @@
 
 (defn- user-member-of-team?
   [team-id username]
-  (if (or (user-member-of-team-active? team-id username)
-          (user-member-of-team-pending? team-id username))
-    true
-    false))
+  (or (user-member-of-team-active? team-id username)
+      (user-member-of-team-pending? team-id username)))
 
 (defn create-team
   [org team-name permission]
