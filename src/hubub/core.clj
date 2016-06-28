@@ -12,23 +12,21 @@
     (log/error message)
     (swap! *errors* conj message)))
 
-(defn repo-contributors-team-name [r] (str r "-contributors"))
-
-(defn repo-admin-team-name [r] (str r "-admin"))
+(def valid-access ["push" "admin"])
 
 (defn- create-teams
   [org]
   (let [repos (github/list-repos org)]
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
       (doseq [repo-name repos]
-        (let [admin-team (repo-admin-team-name repo-name)
-              contributor-team (repo-contributors-team-name repo-name)]
-          (log/info "Starting to create teams for repo" (p/log-var repo-name))
-          (github/create-team org admin-team "admin")
-          (github/create-team org contributor-team "push")
-          (github/associate-repo-with-team org repo-name admin-team)
-          (github/associate-repo-with-team org repo-name contributor-team)
-          (log/info "Completed creating teams for repo" (p/log-var repo-name))))))
+        (log/info "Starting to create teams for repo" (p/log-var repo-name))
+
+        (doseq [access valid-access]
+          (let [team-name (str repo-name "-" access)]
+            (github/create-team org team-name access)
+            (github/associate-repo-with-team org repo-name team-name)))
+
+        (log/info "Completed creating teams for repo" (p/log-var repo-name)))))
 
 (defn- remove-users-from-repo
   [users team-name team-id]
@@ -76,9 +74,9 @@
 (defn- set-organizaiton-users
   [org input valid-user-fn]
   (doseq [repo-name (github/list-repos org)]
-    (doseq [team-name [(repo-admin-team-name repo-name)
-                       (repo-contributors-team-name repo-name)]]
-      (set-users org input repo-name team-name valid-user-fn))))
+    (doseq [access valid-access]
+      (let [team-name (str repo-name "-" access)]
+        (set-users org input repo-name team-name valid-user-fn)))))
 
 (defn- process
   [org input token valid-user-fn]
