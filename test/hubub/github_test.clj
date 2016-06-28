@@ -28,5 +28,5 @@
   (do
     (stub-all)
     (testing "create team"
-      (is (= (:name (create-team "org" "team1")) "team1-contributors")))))
+      (is (= (:name (create-team "org" "team1-contributors" "admin")) "team1-contributors")))))
 

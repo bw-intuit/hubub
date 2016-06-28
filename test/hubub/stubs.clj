@@ -6,11 +6,13 @@
         ["internal-user1" "internal-user3"]))
 
 (def input
-  {"github-user1" {"repos" ["repo1"]
+  {"github-user1" {"contributor" ["repo1"]
                    "internal-user" "internal-user1"}
-   "github-user2" {"repos" ["repo1" "repo2"]
+   "github-user2" {"contributor" ["repo1" "repo2"]
+                   "admin" ["repo1"]
                    "internal-user" "internal-user2"}
-   "github-user3" {"repos" ["repo1" "repo2"]
+   "github-user3" {"contributor" ["repo1" "repo2"]
+                   "admin" ["repo1" "repo2"]
                    "internal-user" "internal-user3"}})
 
 (defn list-teams-stub-fn

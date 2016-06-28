@@ -16,17 +16,14 @@
   (let [teams (map :name (@*list-teams-fn* org (assoc @*auth* :all-pages true)))]
     (false? (empty? (some #{team-name} teams)))))
 
-(defn- repo-team-name [r] (str r "-contributors"))
-
 (defn lookup-team-id
   [org team-name]
   (let [teams (@*list-teams-fn* org (assoc @*auth* :all-pages true))]
     (:id (first (filter #(= (:name %) team-name) teams)))))
 
 (defn associate-repo-with-team
-  [org repo-name]
-  (let [team-name (repo-team-name repo-name)
-        team-id (lookup-team-id org team-name)]
+  [org repo-name team-name]
+  (let [team-id (lookup-team-id org team-name)]
     (if (orgs/team-repo? team-id org repo-name @*auth*)
       (log/info "Team" (p/log-var team-name) "already associated with repo" (p/log-var repo-name))
       (do
@@ -56,9 +53,8 @@
     false))
 
 (defn create-team
-  [org repo-name]
-  (let [team-name (repo-team-name repo-name)
-        options (assoc @*auth* :permission "push")]
+  [org team-name permission]
+  (let [options (assoc @*auth* :permission permission)]
     (if (team-exists? org team-name)
       (log/info "Team" (p/log-var team-name) "already exists.")
       (do

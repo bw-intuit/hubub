@@ -12,13 +12,13 @@
 (defn- valid-user? [username user-data valid-user-fn] (valid-user-fn username user-data))
 
 (defn parse-repos-to-users
-  [input]
+  [input role]
   (loop [users input result {}]
     (if (empty? users)
         result
         (let [user (first users)
               username (first user)
-              repos (get (last user) "repos")]
+              repos (get (last user) role)]
           (recur (rest users) (loop [r repos result2 result]
                                 (if (empty? r)
                                   result2
@@ -27,8 +27,8 @@
                                            (assoc result2 repo (vec (concat (get result2 repo) [username]))))))))))))
 
 (defn repo-users
-  [repo-name input valid-user-fn]
-  (let [repos-user-map (parse-repos-to-users input)
+  [repo-name input valid-user-fn role]
+  (let [repos-user-map (parse-repos-to-users input role)
         repo-user-map (get repos-user-map repo-name)
         valid-repo-users (filter (fn [username]
                                    (let [user-data (get input username)]
