@@ -5,11 +5,11 @@
 
 (deftest verify-repo-users
   (testing "make sure filters proper users"
-    (is (= (repo-users "repo1" input valid-user-stub-fn "contributor")
+    (is (= (repo-users "repo1" input valid-user-stub-fn "push")
            ["github-user1" "github-user3"]))
     (is (= (repo-users "repo1" input valid-user-stub-fn "admin")
            ["github-user3"]))
-    (is (= (repo-users "repo2" input valid-user-stub-fn "contributor")
+    (is (= (repo-users "repo2" input valid-user-stub-fn "push")
            ["github-user3"]))
     (is (= (repo-users "repo2" input valid-user-stub-fn "admin")
            ["github-user3"]))))
@@ -19,6 +19,6 @@
     (is (= (parse-repos-to-users input "admin")
            {"repo1" ["github-user2" "github-user3"]
             "repo2" ["github-user3"]}))
-    (is (= (parse-repos-to-users input "contributor")
+    (is (= (parse-repos-to-users input "push")
            {"repo1" ["github-user1" "github-user2" "github-user3"]
             "repo2" ["github-user2" "github-user3"]}))))
