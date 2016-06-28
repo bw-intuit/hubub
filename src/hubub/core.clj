@@ -76,7 +76,7 @@
   (doseq [repo-name (github/list-repos org)]
     (doseq [access valid-access]
       (let [team-name (str repo-name "-" access)]
-        (set-users org input repo-name team-name valid-user-fn)))))
+        (set-users org input repo-name team-name valid-user-fn access)))))
 
 (defn- process
   [org input token valid-user-fn]
