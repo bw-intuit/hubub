@@ -7,8 +7,9 @@
 (def ^:dynamic *auth* (atom {:oauth-token nil}))
 
 ; -- start github functions ---
-(defn- ^:dynamic gh-list-repos [org] (orgs/repos org (assoc @*auth* :all-pages true)))
-(defn- ^:dynamic gh-list-teams [org] (orgs/teams org (assoc @*auth* :all-pages true)))
+(defn auth-all-pages [] (assoc @*auth* :all-pages true))
+(defn- ^:dynamic gh-list-repos [org] (orgs/repos org (assoc (auth-all-pages) :type :all)))
+(defn- ^:dynamic gh-list-teams [org] (orgs/teams org (auth-all-pages)))
 
 (defn- ^:dynamic gh-team-membership
   [team-id username]
