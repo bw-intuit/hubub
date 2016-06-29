@@ -15,7 +15,7 @@
   [team-id username]
   (tentacles-core/api-call :get "teams/%s/memberships/%s" [team-id username] @*auth*))
 
-(defn- ^:dynamic gh-team-members [team-id] (orgs/team-members team-id))
+(defn- ^:dynamic gh-team-members [team-id] (orgs/team-members team-id @*auth*))
 
 (defn- ^:dynamic gh-team-associated-with-repo?
   [team-id org repo-name]
