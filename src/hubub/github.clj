@@ -35,13 +35,6 @@
 
 (defn- gh-add-user-to-team [team-id user] (orgs/add-team-member team-id user @*auth*))
 
-; -- end github functions ---
-;(gh-team-membership 1 2)
-;(lookup-team-id "hubub-test" "test-repo-2-admin")
-;(user-member-state "2061566" "bweaver")
-;(user-member-state "2061567" "bw-intuit")
-;(swap! *auth* assoc :oauth-token (System/getenv "HUBUB_GITHUB_TOKEN"))
-
 (defn list-repos [org] (map :name (gh-list-repos org)))
 
 (defn team-exists?
