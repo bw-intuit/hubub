@@ -10,13 +10,13 @@
 (defmethod log-var String [x] (str "'" x "'"))
 
 (defn parse-repos-to-users
-  [input role]
+  [input access]
   (loop [users input result {}]
     (if (empty? users)
         result
         (let [user (first users)
               username (first user)
-              repos (get (get (last user) "access") role)]
+              repos (get (get (last user) "access") access)]
           (recur (rest users) (loop [r repos result2 result]
                                 (if (empty? r)
                                   result2
@@ -25,8 +25,8 @@
                                            (assoc result2 repo (vec (concat (get result2 repo) [username]))))))))))))
 
 (defn repo-users
-  [repo-name input valid-user-fn role]
-  (let [repos-user-map (parse-repos-to-users input role)
+  [repo-name input valid-user-fn access]
+  (let [repos-user-map (parse-repos-to-users input access)
         repo-user-map (get repos-user-map repo-name)
         filter-fn (fn [username]
                     (let [user-data (get input username)]
