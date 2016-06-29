@@ -32,8 +32,8 @@
   {:html_url "https://github.com/org/project1"
    :name "project1"})
 
-(defn list-teams-stub-success [org] '(team-response))
+(defn list-teams-stub-success [org] [team-response])
 
-(defn list-repos-stub-success [org] '(repo-response))
+(defn list-repos-stub-success [org] [repo-response])
 
 (defn create-team-stub-success [org team-name permission] {:name team-name})

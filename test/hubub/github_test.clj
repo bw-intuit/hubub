@@ -15,6 +15,8 @@
     (testing "valid team returns false"
       (is (= (team-exists? "org" "invalid") false)))))
 
+(list-teams-stub-success "test")
+
 (deftest create-team-test
   (binding [hubub.github/gh-create-team create-team-stub-success]
     (testing "create team"
