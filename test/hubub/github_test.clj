@@ -15,14 +15,25 @@
     (testing "valid team returns false"
       (is (= (team-exists? "org" "invalid") false)))))
 
-(list-teams-stub-success "test")
-
 (deftest create-team-test
   (binding [hubub.github/gh-create-team create-team-stub-success]
     (testing "create team"
       (is (= (:name (create-team "org" "team1-push" "admin")) "team1-push")))))
 
 (deftest list-repos-test
-  (let [stub (fn [org] '({:name "test1234"} {:name "test4321"}))]
-    (binding [hubub.github/gh-list-repos stub]
-      (is (= (list-repos "test") ["test1234" "test4321"])))))
+  (binding [hubub.github/gh-list-repos list-repos-stub-success]
+    (testing "success"
+      (is (= (list-repos "test") ["project1"])))))
+
+(deftest lookup-team-id-test
+  (binding [hubub.github/gh-list-teams list-teams-stub-success]
+    (testing "returns the team id"
+      (is (= (lookup-team-id "org" "Owners") 123))))
+    (testing "returns nil for unknown team"
+      (is (nil? (lookup-team-id "org" "blah")))))
+
+(deftest associate-repo-with-team-test
+  (binding [hubub.github/gh-list-teams list-teams-stub-success
+            hubub.github/gh-team-associated-with-repo? (fn [team-id org repo-name] true)]
+    (testing "org already associated"
+      (is (true? (associate-repo-with-team "org" "repo" "Owners"))))))

@@ -16,7 +16,7 @@
 
 (defn- gh-team-members [team-id] (orgs/team-members team-id))
 
-(defn- gh-team-associated-with-repo?
+(defn- ^:dynamic gh-team-associated-with-repo?
   [team-id org repo-name]
   (orgs/team-repo? team-id org repo-name @*auth*))
 
@@ -52,7 +52,9 @@
   [org repo-name team-name]
   (let [team-id (lookup-team-id org team-name)]
     (if (gh-team-associated-with-repo? team-id org repo-name)
-      (log/info "Team" (p/log-var team-name) "already associated with repo" (p/log-var repo-name))
+      (do
+        (log/info "Team" (p/log-var team-name) "already associated with repo" (p/log-var repo-name))
+        true)
       (do
         (log/info "team" (p/log-var team-name) "not associated with repo" (p/log-var repo-name) ". Associating...")
         (gh-add-team-to-repo team-id org repo-name)))))

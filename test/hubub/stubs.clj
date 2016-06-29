@@ -25,7 +25,8 @@
    :permission "admin",
    :name "Owners",
    :privacy "secret",
-   :id 123, :url "https://api.github.com/teams/123",
+   :id 123,
+   :url "https://api.github.com/teams/123",
    :repositories_url "https://api.github.com/teams/123"})
 
 (def repo-response
