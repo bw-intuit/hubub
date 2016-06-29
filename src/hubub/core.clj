@@ -12,15 +12,23 @@
     (log/error message)
     (swap! *errors* conj message)))
 
+(def valid-access ["push" "admin"])
+
+(defn- create-team
+  [org repo-name]
+  (doseq [access valid-access]
+    (let [team-name (str repo-name "-" access)]
+      (github/create-team org team-name access)
+      (github/associate-repo-with-team org repo-name team-name))))
+
 (defn- create-teams
   [org]
   (let [repos (github/list-repos org)]
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
-    (doseq [repo-name repos]
-      (log/info "Starting to process repo" (p/log-var repo-name))
-      (github/create-team org repo-name)
-      (github/associate-repo-with-team org repo-name)
-      (log/info "Completed processing repo" (p/log-var repo-name)))))
+      (doseq [repo-name repos]
+        (log/info "Starting to create teams for repo" (p/log-var repo-name))
+        (create-team org repo-name)
+        (log/info "Completed creating teams for repo" (p/log-var repo-name)))))
 
 (defn- remove-users-from-repo
   [users team-name team-id]
@@ -60,18 +68,25 @@
       (add-users-to-repo users-to-add team-name team-id))))
 
 (defn- set-users
+  [org input repo-name team-name valid-user-fn access]
+  (let [users (p/repo-users repo-name input valid-user-fn access)]
+    (log/info "Setting users for" (p/log-var repo-name) "to" (p/log-var users))
+    (set-team-users org team-name users)))
+
+(defn- set-organizaiton-users
   [org input valid-user-fn]
   (doseq [repo-name (github/list-repos org)]
-    (let [users (p/repo-users repo-name input valid-user-fn)]
-      (log/info "Setting users for" (p/log-var repo-name) "to" (p/log-var users))
-      (set-team-users org (str repo-name "-contributors") users))))
+    (doseq [access valid-access]
+      (let [team-name (str repo-name "-" access)]
+        (set-users org input repo-name team-name valid-user-fn access)))))
 
 (defn- process
   [org input token valid-user-fn]
     (do
       (github/set-github-token token)
       (create-teams org)
-      (set-users org input valid-user-fn)
+      (set-organizaiton-users org input valid-user-fn)
+
       (if (empty? @*errors*)
         nil
         (do

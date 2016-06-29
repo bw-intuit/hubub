@@ -44,10 +44,14 @@ member of the org being managed.
 
 Define your user to repos mapping
 
-```
+```clojure
 (def input
-  {"user1" {:repos ["repo1"]}
-   "user2" {:repos ["repo1" "repo2"]}})
+  {"user1"
+    {:access
+     {:admin ["repo1"] :push ["repo2"]}}
+   "user2"
+    {:access
+     {:admin ["repo1" "repo2"]}})
 ```
 
 Execute run against given GitHub organization with this repo-mapping
@@ -58,11 +62,13 @@ Execute run against given GitHub organization with this repo-mapping
 
 Will add perform the following
 
-* Create teams repo1-contributors and repo2-contributors in organization this-is-a-test-1234
-* Add user1 to repo1-contributors
-* Add user2 to repo1-contributors and repo2-contributors
-* Add grant repo1-contributors push access to repo1
-* Add grant repo2-contributors push access to repo2
+* Create teams repo1-admin, repo1-push, repo2-admin and repo2-admin in organization this-is-a-test-1234
+* Add user1 to repo2-admin and repo2-push
+* Add user2 to repo1-admin, repo2-admin
+* Add grant repo1-push push access to repo1
+* Add grant repo2-push push access to repo2
+* Add grant repo1-admin admin access to repo1
+* Add grant repo2-admin admin access to repo2
 
 ### Custom Validations
 
