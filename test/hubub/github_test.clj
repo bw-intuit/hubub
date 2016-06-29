@@ -55,3 +55,11 @@
       (binding [hubub.github/gh-team-associated-with-repo? (fn [team-id org repo-name] false)
                 hubub.github/gh-add-team-to-repo (fn [team-id org repo-name] false)]
         (is (false? (associate-repo-with-team "org" "repo" "Owners")))))))
+
+(deftest user-member-of-team-pending-test
+  (testing "is pending"
+    (binding [hubub.github/gh-team-membership team-membership-pending]
+      (is (true? (user-member-of-team-pending? "123" "bw-intuit")))))
+  (testing "is active"
+    (binding [hubub.github/gh-team-membership team-membership-active]
+      (is (false? (user-member-of-team-pending? "123" "bw-intuit"))))))

@@ -33,6 +33,19 @@
   {:html_url "https://github.com/org/project1"
    :name "project1"})
 
+(def pending-membership
+  {:state "pending"
+   :role "member"
+   :url "https://api.github.com/teams/2061567/memberships/bw-intuit"})
+
+(def active-membership
+  {:state "active"
+   :role "member"
+   :url "https://api.github.com/teams/2061567/memberships/bw-intuit"})
+
+(defn team-membership-active [team-id username] active-membership)
+(defn team-membership-pending [team-id username] pending-membership)
+
 (defn list-teams-stub-success [org] [team-response])
 
 (defn list-repos-stub-success [org] [repo-response])

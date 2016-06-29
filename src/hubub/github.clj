@@ -10,11 +10,11 @@
 (defn- ^:dynamic gh-list-repos [org] (orgs/repos org (assoc @*auth* :all-pages true)))
 (defn- ^:dynamic gh-list-teams [org] (orgs/teams org (assoc @*auth* :all-pages true)))
 
-(defn- gh-team-membership
+(defn- ^:dynamic gh-team-membership
   [team-id username]
   (tentacles-core/api-call :get "teams/%s/memberships/%s" [team-id username] @*auth*))
 
-(defn- gh-team-members [team-id] (orgs/team-members team-id))
+(defn- ^:dynamic gh-team-members [team-id] (orgs/team-members team-id))
 
 (defn- ^:dynamic gh-team-associated-with-repo?
   [team-id org repo-name]
@@ -34,7 +34,13 @@
   (orgs/delete-team-member team-id user @*auth*))
 
 (defn- gh-add-user-to-team [team-id user] (orgs/add-team-member team-id user @*auth*))
+
 ; -- end github functions ---
+;(gh-team-membership 1 2)
+;(lookup-team-id "hubub-test" "test-repo-2-admin")
+;(user-member-state "2061566" "bweaver")
+;(user-member-state "2061567" "bw-intuit")
+;(swap! *auth* assoc :oauth-token (System/getenv "HUBUB_GITHUB_TOKEN"))
 
 (defn list-repos [org] (map :name (gh-list-repos org)))
 
