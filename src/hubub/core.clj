@@ -14,18 +14,20 @@
 
 (def valid-access ["push" "admin"])
 
+(defn- create-team
+  [org repo-name]
+  (doseq [access valid-access]
+    (let [team-name (str repo-name "-" access)]
+      (github/create-team org team-name access)
+      (github/associate-repo-with-team org repo-name team-name))))
+
 (defn- create-teams
   [org]
   (let [repos (github/list-repos org)]
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
       (doseq [repo-name repos]
         (log/info "Starting to create teams for repo" (p/log-var repo-name))
-
-        (doseq [access valid-access]
-          (let [team-name (str repo-name "-" access)]
-            (github/create-team org team-name access)
-            (github/associate-repo-with-team org repo-name team-name)))
-
+        (create-team org repo-name)
         (log/info "Completed creating teams for repo" (p/log-var repo-name)))))
 
 (defn- remove-users-from-repo

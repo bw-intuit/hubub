@@ -18,23 +18,22 @@
               "admin" ["repo1" "repo2"]}
     "internal-user" "internal-user3"}})
 
-(defn list-teams-stub-fn
-  [org auth]
-  '({:description nil,
-     :members_url "https://api.github.com/teams/123{/member}",
-     :slug "owners",
-     :permission "admin",
-     :name "Owners",
-     :privacy "secret",
-     :id 123, :url "https://api.github.com/teams/123",
-     :repositories_url "https://api.github.com/teams/123"}))
+(def team-response
+  {:description nil,
+   :members_url "https://api.github.com/teams/123{/member}",
+   :slug "owners",
+   :permission "admin",
+   :name "Owners",
+   :privacy "secret",
+   :id 123, :url "https://api.github.com/teams/123",
+   :repositories_url "https://api.github.com/teams/123"})
 
+(def repo-response
+  {:html_url "https://github.com/org/project1"
+   :name "project1"})
 
-(defn list-repos-stub-fn
-  [org auth]
-  [{:html_url "https://github.com/org/project1"
-    :name "project1"}])
+(defn list-teams-stub-success [org] '(team-response))
 
-(defn create-team-stub-fn
-  [org team-name options]
-  {:name team-name})
+(defn list-repos-stub-success [org] '(repo-response))
+
+(defn create-team-stub-success [org team-name permission] {:name team-name})
