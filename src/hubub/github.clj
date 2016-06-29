@@ -20,7 +20,7 @@
   [team-id org repo-name]
   (orgs/team-repo? team-id org repo-name @*auth*))
 
-(defn- gh-add-team-to-repo
+(defn- ^:dynamic gh-add-team-to-repo
   [team-id org repo-name]
   (orgs/add-team-repo team-id org repo-name @*auth*))
 

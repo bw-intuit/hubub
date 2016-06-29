@@ -33,7 +33,25 @@
       (is (nil? (lookup-team-id "org" "blah")))))
 
 (deftest associate-repo-with-team-test
-  (binding [hubub.github/gh-list-teams list-teams-stub-success
-            hubub.github/gh-team-associated-with-repo? (fn [team-id org repo-name] true)]
-    (testing "org already associated"
-      (is (true? (associate-repo-with-team "org" "repo" "Owners"))))))
+  (binding [hubub.github/gh-list-teams list-teams-stub-success]
+
+    (testing "repo already associated"
+      (binding [hubub.github/gh-team-associated-with-repo? (fn [team-id org repo-name]
+                                                             (and (= org "org")
+                                                                  (= repo-name "repo")
+                                                                  (= team-id 123)))]
+
+      (is (true? (associate-repo-with-team "org" "repo" "Owners")))))
+
+    (testing "repo not associated and then succfully associated"
+      (binding [hubub.github/gh-team-associated-with-repo? (fn [team-id org repo-name] false)
+                hubub.github/gh-add-team-to-repo (fn [team-id org repo-name] (and
+                                                                               (= org "org")
+                                                                               (= repo-name "repo")
+                                                                               (= team-id 123)))]
+        (is (true? (associate-repo-with-team "org" "repo" "Owners")))))
+
+    (testing "repo not associated and then filed to associate"
+      (binding [hubub.github/gh-team-associated-with-repo? (fn [team-id org repo-name] false)
+                hubub.github/gh-add-team-to-repo (fn [team-id org repo-name] false)]
+        (is (false? (associate-repo-with-team "org" "repo" "Owners")))))))
