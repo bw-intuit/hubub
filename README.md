@@ -62,7 +62,7 @@ Execute run against given GitHub organization with this repo-mapping
 
 Will add perform the following
 
-* Create teams repo1-admin, repo1-push, repo2-admin and repo2-admin in organization this-is-a-test-1234
+* Create teams repo1-admin, repo1-push, repo2-admin and repo2-push in organization this-is-a-test-1234
 * Add user1 to repo2-admin and repo2-push
 * Add user2 to repo1-admin, repo2-admin
 * Add grant repo1-push push access to repo1
