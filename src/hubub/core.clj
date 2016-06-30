@@ -14,16 +14,13 @@
 
 (def valid-permissions ["push" "admin"])
 
-(defn gen-team-name [repo-name access] (str repo-name "-" access))
+(defn- gen-team-name [repo-name access] (str repo-name "-" access))
 
-(defn gh-error?
-  [result]
-  (if (nil? (:status result))
-    false
-    (let [status (:status result)]
-      (and (>= status 400) (< status 600)))))
+(defn- gh-error? [result] (false? (nil? (:status result))))
 
-(defn throw-github-error [] (throw (ex-info "error calling github" {})))
+(defn- throw-github-error [] (throw (ex-info "error calling github" {})))
+
+(defn- create-team-options [permission] (assoc @github/*auth* :permission permission))
 
 (defn team-exists?
   [team-name gh-list-teams-result]
@@ -32,14 +29,17 @@
     (let [teams (map :name gh-list-teams-result)]
       (false? (empty? (some #{team-name} teams))))))
 
-(defn- create-team-unless-exists
+(defn create-team-unless-exists
+  [org repo-name permission]
+  (let [team-name (gen-team-name repo-name permission)
+        team-exists (team-exists? team-name (github/gh-list-teams org))]
+    (if team-exists
+      true
+      (github/gh-create-team org team-name (create-team-options permission)))))
+
+(defn create-repo-teams
   [org repo-name]
-  (doseq [permission valid-permissions]
-    (let [team-name (gen-team-name repo-name permission)
-          team-exists (team-exists? team-name (github/gh-list-teams org))]
-      (if (false? team-exists)
-        (let [options (assoc @github/*auth* :permission permission)]
-          (github/gh-create-team org team-name options))))))
+  (map #(create-team-unless-exists org repo-name %) valid-permissions))
 
 (defn- create-teams
   [org]
@@ -47,7 +47,7 @@
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
       (doseq [repo-name repos]
         (log/info "Starting to create teams for repo" (p/log-var repo-name))
-        (create-team-unless-exists org repo-name)
+        (create-repo-teams org repo-name)
         (log/info "Completed creating teams for repo" (p/log-var repo-name)))))
 
 (defn- remove-users-from-repo
