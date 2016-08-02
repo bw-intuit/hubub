@@ -1,5 +1,6 @@
 (ns hubub.github
   (:require [tentacles.core :as tentacles-core]
+            [tentacles.repos :as repos]
             [tentacles.orgs :as orgs]
             [hubub.parsers :as p]
             [clojure.tools.logging :as log]))
@@ -28,13 +29,17 @@
 (defn ^:dynamic gh-create-team
   [org team-name options]
   (orgs/create-team org team-name options))
-; -- end github functions ---
 
 (defn- gh-remove-user-from-team
   [team-id user]
   (orgs/delete-team-member team-id user @*auth*))
 
 (defn- gh-add-user-to-team [team-id user] (orgs/add-team-member team-id user @*auth*))
+
+(defn gh-org-members [org role] (orgs/members org (assoc @*auth* :role role)))
+
+(defn gh-repo-collaborators [org repo-name] (repos/collaborators org repo-name @*auth*))
+; -- end github functions ---
 
 (defn list-repos [org] (map :name (gh-list-repos org)))
 

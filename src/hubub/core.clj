@@ -1,5 +1,6 @@
 (ns hubub.core
   (:require [clojure.tools.logging :as log]
+            [clojure.data :as data]
             [clojure.tools.logging :as log]
             [hubub.github :as github]
             [hubub.parsers :as p]))
@@ -39,16 +40,22 @@
 
 (defn create-repo-teams
   [org repo-name]
-  (map #(create-team-unless-exists org repo-name %) valid-permissions))
+  (do
+    (log/info "Starting to create teams for repo" (p/log-var repo-name))
+    (map #(create-team-unless-exists org repo-name %) valid-permissions)
+    (log/info "Completed creating teams for repo" (p/log-var repo-name))))
 
 (defn- create-teams
-  [org]
+  [org repos]
+  (doseq [repo-name repos]
+    (create-repo-teams org repo-name)))
+
+(defn- iterate-repos
+  [org fns]
   (let [repos (github/list-repos org)]
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
-      (doseq [repo-name repos]
-        (log/info "Starting to create teams for repo" (p/log-var repo-name))
-        (create-repo-teams org repo-name)
-        (log/info "Completed creating teams for repo" (p/log-var repo-name)))))
+    (doseq [f fns]
+      (f org repos))))
 
 (defn- remove-users-from-repo
   [users team-name team-id]
@@ -90,7 +97,7 @@
 (defn- set-users
   [org input repo-name team-name valid-user-fn access]
   (let [users (p/repo-users repo-name input valid-user-fn access)]
-    (log/info "Setting users for" (p/log-var repo-name) "to" (p/log-var users))
+    (log/info "Setting users for" (p/log-var repo-name) "with access" (p/log-var access) "to" (p/log-var users))
     (set-team-users org team-name users)))
 
 (defn- set-organizaiton-users
@@ -100,11 +107,36 @@
       (let [team-name (str repo-name "-" access)]
         (set-users org input repo-name team-name valid-user-fn access)))))
 
+(defn valid-repo-users
+  [repo-name input valid-user-fn admins]
+  (let [user-fn #(p/repo-users repo-name input valid-user-fn %)
+        user-arrays (map user-fn valid-permissions)
+        all-users (apply concat (conj user-arrays admins))]
+    (distinct all-users)))
+
+(defn invalid-users
+  [current-users valid-users]
+  (remove (into #{} valid-users) current-users))
+
+(defn remove-invalid-repo-users-fn
+  [org input valid-user-fn admins]
+  (fn
+    [org repos]
+    (doseq [repo-name repos]
+      (let [valid-users (valid-repo-users repo-name input valid-user-fn admins)
+            current-users (map :login (github/gh-repo-collaborators org repo-name))
+            invalid-users (invalid-users current-users valid-users)]
+        (log/info "invalid-users" invalid-users "for" repo-name)))))
+
 (defn- process
   [org input token valid-user-fn]
     (do
       (github/set-github-token token)
-      (create-teams org)
+      (let 
+        [admins (map :login (github/gh-org-members org "admin"))
+         remove-invalid-repo-users (remove-invalid-repo-users-fn org input valid-user-fn admins)]
+        ;(iterate-repos org [create-teams remove-invalid-repo-users]))
+        (iterate-repos org [remove-invalid-repo-users]))
       (set-organizaiton-users org input valid-user-fn)
 
       (if (empty? @*errors*)

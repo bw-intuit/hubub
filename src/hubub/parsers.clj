@@ -30,11 +30,8 @@
         repo-user-map (get repos-user-map repo-name)
         filter-fn (fn [username]
                     (let [user-data (get input username)]
-                      (valid-user-fn username user-data)))
-        valid-repo-users (filter filter-fn repo-user-map)]
-    (do
-      (log/info "Valid repo users for" (log-var repo-name) "are" (log-var valid-repo-users))
-      valid-repo-users)))
+                      (valid-user-fn username user-data)))]
+    (filter filter-fn repo-user-map)))
 
 (defn users-to-remove
   [current-users users]
