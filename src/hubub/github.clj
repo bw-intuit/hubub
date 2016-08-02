@@ -9,7 +9,7 @@
 ; -- start github functions ---
 (defn auth-all-pages [] (assoc @*auth* :all-pages true))
 (defn- ^:dynamic gh-list-repos [org] (orgs/repos org (assoc (auth-all-pages) :type :all)))
-(defn- ^:dynamic gh-list-teams [org] (orgs/teams org (auth-all-pages)))
+(defn ^:dynamic gh-list-teams [org] (orgs/teams org (auth-all-pages)))
 
 (defn- ^:dynamic gh-team-membership
   [team-id username]
@@ -25,10 +25,10 @@
   [team-id org repo-name]
   (orgs/add-team-repo team-id org repo-name @*auth*))
 
-(defn- ^:dynamic gh-create-team
-  [org team-name permission]
-  (let [options (assoc @*auth* :permission permission)]
-    (orgs/create-team org team-name options)))
+(defn ^:dynamic gh-create-team
+  [org team-name options]
+  (orgs/create-team org team-name options))
+; -- end github functions ---
 
 (defn- gh-remove-user-from-team
   [team-id user]
@@ -37,11 +37,6 @@
 (defn- gh-add-user-to-team [team-id user] (orgs/add-team-member team-id user @*auth*))
 
 (defn list-repos [org] (map :name (gh-list-repos org)))
-
-(defn team-exists?
-  [org team-name]
-  (let [teams (map :name (gh-list-teams org))]
-    (false? (empty? (some #{team-name} teams)))))
 
 (defn lookup-team-id
   [org team-name]
@@ -78,14 +73,6 @@
   [team-id username]
   (or (user-member-of-team-active? team-id username)
       (user-member-of-team-pending? team-id username)))
-
-(defn create-team
-  [org team-name permission]
-  (if (team-exists? org team-name)
-    (log/info "Team" (p/log-var team-name) "already exists.")
-    (do
-      (log/info "Team" (p/log-var team-name) "does not exist. creating.")
-      (gh-create-team org team-name permission))))
 
 (defn add-user-to-team
   [id user]

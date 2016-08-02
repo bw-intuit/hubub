@@ -8,18 +8,6 @@
     (binding [hubub.github/gh-list-repos list-repos-stub-success]
       (is (= (list-repos "org") ["project1"])))))
 
-(deftest team-exists-test
-  (binding [hubub.github/gh-list-teams list-teams-stub-success]
-    (testing "valid team returns true"
-      (is (= (team-exists? "org" "Owners") true)))
-    (testing "valid team returns false"
-      (is (= (team-exists? "org" "invalid") false)))))
-
-(deftest create-team-test
-  (binding [hubub.github/gh-create-team create-team-stub-success]
-    (testing "create team"
-      (is (= (:name (create-team "org" "team1-push" "admin")) "team1-push")))))
-
 (deftest list-repos-test
   (binding [hubub.github/gh-list-repos list-repos-stub-success]
     (testing "success"

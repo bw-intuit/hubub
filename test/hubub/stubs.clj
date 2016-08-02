@@ -43,10 +43,16 @@
    :role "member"
    :url "https://api.github.com/teams/2061567/memberships/bw-intuit"})
 
+(def list-team-error
+  {:status 404, :headers {"Access-Control-Expose-Headers" "ETag, Link, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval", "X-Accepted-OAuth-Scopes" "repo", "Server" "GitHub.com", "Content-Type" "application/json; charset=u tf-8", "Access-Control-Allow-Origin" "*", "X-Content-Type-Options" "nosniff", "X-Frame-Options" "deny", "Strict-Transport-Security" "max-age=31536000; includeSubdomains; preload", "X-RateLimit-Limit" "5 000", "X-RateLimit-Remaining" "4990", "X-RateLimit-Reset" "1467301590", "Connection" "close", "Transfer-Encoding" "chunked", "Status" "404 Not Found", "X-GitHub-Request-Id" "C7108C1B:2F36:79886BC:57753B 55", "X-OAuth-Scopes" "admin:org, repo", "X-GitHub-Media-Type" "github.v3; format=json", "Date" "Thu, 30 Jun 2016 15:31:33 GMT", "X-XSS-Protection" "1; mode=block", "Content-Security-Policy" "default-src 'none'"}, :body {:message "Not Found", :documentation_url "https://developer.github.com/v3"}, :request-time 545, :trace-redirects ["https://api.github.com/orgs/intuit-boom/teams"], :orig-content-encoding "gzip"})
+
 (defn team-membership-active [team-id username] active-membership)
+
 (defn team-membership-pending [team-id username] pending-membership)
 
 (defn list-teams-stub-success [org] [team-response])
+
+(defn list-teams-stub-error [org] list-team-error)
 
 (defn list-repos-stub-success [org] [repo-response])
 

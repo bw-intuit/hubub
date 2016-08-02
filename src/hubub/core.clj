@@ -12,14 +12,34 @@
     (log/error message)
     (swap! *errors* conj message)))
 
-(def valid-access ["push" "admin"])
+(def valid-permissions ["push" "admin"])
 
-(defn- create-team
+(defn- gen-team-name [repo-name access] (str repo-name "-" access))
+
+(defn- gh-error? [result] (false? (nil? (:status result))))
+
+(defn- throw-github-error [] (throw (ex-info "error calling github" {})))
+
+(defn- create-team-options [permission] (assoc @github/*auth* :permission permission))
+
+(defn team-exists?
+  [team-name gh-list-teams-result]
+  (if (gh-error? gh-list-teams-result)
+    (throw-github-error)
+    (let [teams (map :name gh-list-teams-result)]
+      (false? (empty? (some #{team-name} teams))))))
+
+(defn create-team-unless-exists
+  [org repo-name permission]
+  (let [team-name (gen-team-name repo-name permission)
+        team-exists (team-exists? team-name (github/gh-list-teams org))]
+    (if team-exists
+      true
+      (github/gh-create-team org team-name (create-team-options permission)))))
+
+(defn create-repo-teams
   [org repo-name]
-  (doseq [access valid-access]
-    (let [team-name (str repo-name "-" access)]
-      (github/create-team org team-name access)
-      (github/associate-repo-with-team org repo-name team-name))))
+  (map #(create-team-unless-exists org repo-name %) valid-permissions))
 
 (defn- create-teams
   [org]
@@ -27,7 +47,7 @@
     (log/info "Organization" (p/log-var org) "has repos" (p/log-var repos))
       (doseq [repo-name repos]
         (log/info "Starting to create teams for repo" (p/log-var repo-name))
-        (create-team org repo-name)
+        (create-repo-teams org repo-name)
         (log/info "Completed creating teams for repo" (p/log-var repo-name)))))
 
 (defn- remove-users-from-repo
@@ -76,7 +96,7 @@
 (defn- set-organizaiton-users
   [org input valid-user-fn]
   (doseq [repo-name (github/list-repos org)]
-    (doseq [access valid-access]
+    (doseq [access valid-permissions]
       (let [team-name (str repo-name "-" access)]
         (set-users org input repo-name team-name valid-user-fn access)))))
 
