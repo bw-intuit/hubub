@@ -68,8 +68,7 @@
 (defn- add-users-to-repo
   [users team-name team-id]
   (loop [u users]
-    (if (empty? u)
-      nil
+    (if (not (empty? u))
       (do
         (let [user (first u)]
           (log/info "Adding user" (p/log-var user) "to" (p/log-var team-name))
@@ -142,8 +141,7 @@
         (iterate-repos org [remove-invalid-repo-users]))
       (set-organizaiton-users org input valid-user-fn)
 
-      (if (empty? @*errors*)
-        nil
+      (if (not (empty? @*errors*))
         (do
           (log/error "Received" (count @*errors*) "errors")
           (doseq [error @*errors*]
