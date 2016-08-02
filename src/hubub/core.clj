@@ -134,11 +134,11 @@
   [org input token valid-user-fn]
     (do
       (github/set-github-token token)
-      (let 
-        [admins (map :login (github/gh-org-members org "admin"))
-         remove-invalid-repo-users (remove-invalid-repo-users-fn org input valid-user-fn admins)]
-        ;(iterate-repos org [create-teams remove-invalid-repo-users]))
-        (iterate-repos org [remove-invalid-repo-users]))
+
+      (let [admins (map :login (github/gh-org-members org "admin"))
+            remove-invalid-repo-users (remove-invalid-repo-users-fn org input valid-user-fn admins)]
+        (iterate-repos org [create-teams remove-invalid-repo-users]))
+
       (set-organizaiton-users org input valid-user-fn)
 
       (if (not (empty? @*errors*))
