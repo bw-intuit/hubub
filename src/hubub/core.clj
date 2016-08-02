@@ -125,7 +125,6 @@
       (let [valid-users (valid-repo-users repo-name input valid-user-fn admins)
             current-users (map :login (github/gh-repo-collaborators org repo-name))
             invalid-users (invalid-users current-users valid-users)]
-        (log/info "invalid-users" invalid-users "for" repo-name)
         (doseq [user-name invalid-users]
           (log/info "removing user" user-name "from repo" repo-name)
           (github/gh-remove-repo-collaborator org repo-name user-name))))))
