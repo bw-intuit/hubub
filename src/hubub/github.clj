@@ -39,6 +39,10 @@
 (defn gh-org-members [org role] (orgs/members org (assoc @*auth* :role role)))
 
 (defn gh-repo-collaborators [org repo-name] (repos/collaborators org repo-name @*auth*))
+
+(defn gh-remove-repo-collaborator
+  [org repo-name user-name]
+  (repos/remove-collaborator org repo-name user-name @*auth*))
 ; -- end github functions ---
 
 (defn list-repos [org] (map :name (gh-list-repos org)))
