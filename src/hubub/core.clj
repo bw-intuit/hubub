@@ -33,13 +33,15 @@
   [org repo-name permission]
   (let [team-name (gen-team-name repo-name permission)
         team-exists (team-exists? team-name (github/gh-list-teams org))]
+    (log/info "Creating team" team-name)
     (if team-exists
       true
       (github/gh-create-team org team-name (create-team-options permission)))))
 
 (defn create-repo-teams
   [org repo-name]
-  (map #(create-team-unless-exists org repo-name %) valid-permissions))
+  (doseq [perm valid-permissions]
+    (create-team-unless-exists org repo-name perm)))
 
 (defn- create-teams
   [org]
