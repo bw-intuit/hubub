@@ -36,7 +36,9 @@
     (log/info "Creating team" team-name)
     (if team-exists
       true
-      (github/gh-create-team org team-name (create-team-options permission)))))
+      (do
+        (github/gh-create-team org team-name (create-team-options permission))
+        (github/associate-repo-with-team org repo-name team-name)))))
 
 (defn create-repo-teams
   [org repo-name]
